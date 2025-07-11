@@ -1,0 +1,82 @@
+using Aido.Application.UseCases.TodoLists.Commands.CreateTodoList;
+using Aido.Application.UseCases.TodoLists.Queries.GetAllTodoLists;
+using Aido.Application.UseCases.TodoLists.Queries.GetTodoListById;
+using Aido.Core;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Aido.Presentation.Controllers;
+
+[ApiController]
+[Route("api/todo-lists")]
+public class TodoListsController : ControllerBase
+{
+    private readonly GetAllTodoListsUseCase _getAllTodoListsUseCase;
+    private readonly GetTodoListByIdUseCase _getTodoListByIdUseCase;
+    private readonly CreateTodoListUseCase _createTodoListUseCase;
+
+    public TodoListsController(
+        GetAllTodoListsUseCase getAllTodoListsUseCase,
+        GetTodoListByIdUseCase getTodoListByIdUseCase,
+        CreateTodoListUseCase createTodoListUseCase)
+    {
+        _getAllTodoListsUseCase = getAllTodoListsUseCase;
+        _getTodoListByIdUseCase = getTodoListByIdUseCase;
+        _createTodoListUseCase = createTodoListUseCase;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllTodoLists(CancellationToken cancellationToken)
+    {
+        var result = await _getAllTodoListsUseCase.ExecuteAsync(cancellationToken);
+        
+        if (result.IsFailure)
+        {
+            return StatusCode(500, new { error = "InternalServerError", message = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTodoListById(Guid id, CancellationToken cancellationToken)
+    {
+        var request = new GetTodoListByIdRequest(new TodoListId(id));
+        var result = await _getTodoListByIdUseCase.ExecuteAsync(request, cancellationToken);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == "Todo list not found")
+            {
+                return NotFound(new { error = "NotFound", message = result.Error });
+            }
+            return StatusCode(500, new { error = "InternalServerError", message = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateTodoList([FromBody] CreateTodoListRequestDto requestDto, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { error = "BadRequest", message = "Invalid request data", details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        var request = new CreateTodoListRequest(requestDto.Name, requestDto.Description ?? string.Empty);
+        var result = await _createTodoListUseCase.ExecuteAsync(request, cancellationToken);
+        
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = "BadRequest", message = result.Error });
+        }
+
+        return CreatedAtAction(nameof(GetTodoListById), new { id = result.Value.Id }, result.Value);
+    }
+}
+
+public class CreateTodoListRequestDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}

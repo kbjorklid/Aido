@@ -1,0 +1,6 @@
+@Aido.Presentation_HostAddress = http://localhost:5027
+
+GET {{Aido.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
