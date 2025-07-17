@@ -33,12 +33,12 @@ public class TodoList
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public TodoItem AddItem(string title, string description)
+    public TodoItem AddItem(string title, string description, bool isSuggestionFromAi = false)
     {
         if (_items.Count >= 1000)
             throw new InvalidOperationException("Maximum of 1000 items per list exceeded.");
 
-        var item = new TodoItem(title, description);
+        var item = new TodoItem(title, description, isSuggestionFromAi);
         _items.Add(item);
         UpdatedAt = DateTime.UtcNow;
         return item;

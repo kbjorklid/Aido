@@ -9,10 +9,11 @@ public class TodoItem
     public string Title { get; private set; }
     public string Description { get; private set; }
     public bool IsCompleted { get; private set; }
+    public bool IsSuggestionFromAi { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    internal TodoItem(string title, string description)
+    internal TodoItem(string title, string description, bool isSuggestionFromAi)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Item title cannot be empty or whitespace only.", nameof(title));

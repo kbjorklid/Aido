@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dotnet build)",
       "Bash(curl:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(dotnet build:*)"
     ],
     "deny": []
   }

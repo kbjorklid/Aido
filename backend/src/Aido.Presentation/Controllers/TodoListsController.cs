@@ -2,7 +2,9 @@ using Aido.Application.UseCases.TodoLists.Commands.CreateTodoList;
 using Aido.Application.UseCases.TodoLists.Queries.GetAllTodoLists;
 using Aido.Application.UseCases.TodoLists.Queries.GetTodoListById;
 using Aido.Core;
+using Aido.SharedKernel;
 using Microsoft.AspNetCore.Mvc;
+using TodoListResponse = Aido.Application.UseCases.TodoLists.Queries.GetTodoListById.TodoListResponse;
 
 namespace Aido.Presentation.Controllers;
 
@@ -41,7 +43,8 @@ public class TodoListsController : ControllerBase
     public async Task<IActionResult> GetTodoListById(Guid id, CancellationToken cancellationToken)
     {
         var request = new GetTodoListByIdRequest(new TodoListId(id));
-        var result = await _getTodoListByIdUseCase.ExecuteAsync(request, cancellationToken);
+        
+        Result<TodoListResponse> result = await _getTodoListByIdUseCase.ExecuteAsync(request, cancellationToken);
         
         if (result.IsFailure)
         {
