@@ -24,7 +24,7 @@ public class AddTodoItemUseCase
                 return Result.Failure<TodoItemResponse>("Todo list not found");
             }
 
-            var todoItem = todoList.AddItem(request.Title, request.Description);
+            TodoItem todoItem = todoList.AddItem(request.Title, request.Description);
 
             await _todoListRepository.UpdateAsync(todoList, cancellationToken);
             

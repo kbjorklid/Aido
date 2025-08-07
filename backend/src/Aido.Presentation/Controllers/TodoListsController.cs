@@ -1,4 +1,5 @@
 using Aido.Application.UseCases.TodoLists.Commands.CreateTodoList;
+using Aido.Application.UseCases.TodoLists.Commands.DeleteTodoList;
 using Aido.Application.UseCases.TodoLists.Commands.GenerateAiSuggestions;
 using Aido.Application.UseCases.TodoLists.Queries.GetAllTodoLists;
 using Aido.Application.UseCases.TodoLists.Queries.GetTodoListById;
@@ -16,17 +17,20 @@ public class TodoListsController : ControllerBase
     private readonly GetAllTodoListsUseCase _getAllTodoListsUseCase;
     private readonly GetTodoListByIdUseCase _getTodoListByIdUseCase;
     private readonly CreateTodoListUseCase _createTodoListUseCase;
+    private readonly DeleteTodoListUseCase _deleteTodoListUseCase;
     private readonly GenerateAiSuggestionsUseCase _generateAiSuggestionsUseCase;
 
     public TodoListsController(
         GetAllTodoListsUseCase getAllTodoListsUseCase,
         GetTodoListByIdUseCase getTodoListByIdUseCase,
         CreateTodoListUseCase createTodoListUseCase,
+        DeleteTodoListUseCase deleteTodoListUseCase,
         GenerateAiSuggestionsUseCase generateAiSuggestionsUseCase)
     {
         _getAllTodoListsUseCase = getAllTodoListsUseCase;
         _getTodoListByIdUseCase = getTodoListByIdUseCase;
         _createTodoListUseCase = createTodoListUseCase;
+        _deleteTodoListUseCase = deleteTodoListUseCase;
         _generateAiSuggestionsUseCase = generateAiSuggestionsUseCase;
     }
 
@@ -79,6 +83,24 @@ public class TodoListsController : ControllerBase
         }
 
         return CreatedAtAction(nameof(GetTodoListById), new { id = result.Value.Id }, result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTodoList(Guid id, CancellationToken cancellationToken)
+    {
+        var request = new DeleteTodoListRequest(new TodoListId(id));
+        var result = await _deleteTodoListUseCase.ExecuteAsync(request, cancellationToken);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == "Todo list not found")
+            {
+                return NotFound(new { error = "NotFound", message = result.Error });
+            }
+            return StatusCode(500, new { error = "InternalServerError", message = result.Error });
+        }
+
+        return NoContent();
     }
 
     [HttpPost("{id}/ai-suggestions")]

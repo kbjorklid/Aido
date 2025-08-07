@@ -1,0 +1,7 @@
+﻿
+
+DELETE /api/todo-lists/{listId}/items/{itemId}
+
+
+List ID : 727c6708-a3a9-48f7-9a20-f96c1c611449
+item id: 5d2100a5-ab9a-4bbe-be21-31490f02c065

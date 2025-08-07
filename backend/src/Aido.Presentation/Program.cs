@@ -1,7 +1,9 @@
 using Aido.Application.LlmAnalysis;
 using Aido.Application.Repositories;
 using Aido.Application.UseCases.TodoItems.Commands.AddTodoItem;
+using Aido.Application.UseCases.TodoItems.Commands.RemoveTodoItem;
 using Aido.Application.UseCases.TodoLists.Commands.CreateTodoList;
+using Aido.Application.UseCases.TodoLists.Commands.DeleteTodoList;
 using Aido.Application.UseCases.TodoLists.Commands.GenerateAiSuggestions;
 using Aido.Application.UseCases.TodoLists.Queries.GetAllTodoLists;
 using Aido.Application.UseCases.TodoLists.Queries.GetTodoListById;
@@ -33,7 +35,9 @@ builder.Services.AddScoped<LlmAnalysisPort, LlmAnalysisAdapter>();
 builder.Services.AddScoped<GetAllTodoListsUseCase>();
 builder.Services.AddScoped<GetTodoListByIdUseCase>();
 builder.Services.AddScoped<CreateTodoListUseCase>();
+builder.Services.AddScoped<DeleteTodoListUseCase>();
 builder.Services.AddScoped<AddTodoItemUseCase>();
+builder.Services.AddScoped<RemoveTodoItemUseCase>();
 builder.Services.AddScoped<GenerateAiSuggestionsUseCase>();
 
 var app = builder.Build();
