@@ -9,11 +9,13 @@ import AISuggestionsPanel from "./AISuggestionsPanel";
 interface AISuggestionsButtonProps {
   todoList: TodoList;
   onSuggestionAdded: (suggestion: AiSuggestion) => void;
+  onSuggestionsGenerated?: () => void;
 }
 
 export default function AISuggestionsButton({ 
   todoList, 
-  onSuggestionAdded 
+  onSuggestionAdded,
+  onSuggestionsGenerated
 }: AISuggestionsButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
@@ -32,6 +34,11 @@ export default function AISuggestionsButton({
       );
       
       setSuggestions(generatedSuggestions);
+      
+      // Notify parent that suggestions have been generated
+      if (onSuggestionsGenerated) {
+        onSuggestionsGenerated();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate AI suggestions');
       console.error("Failed to generate AI suggestions:", err);

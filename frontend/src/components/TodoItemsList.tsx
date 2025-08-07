@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { TodoList, TodoItem as TodoItemType, AddTodoItemRequest, todoItemsApi } from "@/lib/api";
+import { TodoList, TodoItem as TodoItemType, AddTodoItemRequest, todoItemsApi, todoListsApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import TodoItem from "./TodoItem";
@@ -57,6 +57,16 @@ export default function TodoItemsList({
     }
   };
 
+  const handleSuggestionsGenerated = async () => {
+    try {
+      // Refresh the todo list to get the latest data including any new items
+      const refreshedList = await todoListsApi.getById(todoList.id);
+      onListUpdated(refreshedList);
+    } catch (err) {
+      console.error("Failed to refresh todo list:", err);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       <ScrollArea className="flex-1">
@@ -102,6 +112,7 @@ export default function TodoItemsList({
             <AISuggestionsButton
               todoList={todoList}
               onSuggestionAdded={handleAISuggestionAdded}
+              onSuggestionsGenerated={handleSuggestionsGenerated}
             />
           )}
         </div>
