@@ -1,0 +1,155 @@
+﻿openapi: 3.0.1
+info:
+  title: Aido.Presentation
+  version: '1.0'
+paths:
+  /api/todo-lists/{listId}/items:
+    post:
+      tags:
+        - TodoItems
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTodoItemRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AddTodoItemRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AddTodoItemRequestDto'
+      responses:
+        '200':
+          description: OK
+  /api/todo-lists/{listId}/items/{itemId}:
+    delete:
+      tags:
+        - TodoItems
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+  /api/todo-lists:
+    get:
+      tags:
+        - TodoLists
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - TodoLists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoListRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoListRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoListRequestDto'
+      responses:
+        '200':
+          description: OK
+  /api/todo-lists/{id}:
+    get:
+      tags:
+        - TodoLists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags:
+        - TodoLists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+  /api/todo-lists/{id}/ai-suggestions:
+    post:
+      tags:
+        - TodoLists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateAiSuggestionsRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/GenerateAiSuggestionsRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/GenerateAiSuggestionsRequestDto'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    AddTodoItemRequestDto:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateTodoListRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    GenerateAiSuggestionsRequestDto:
+      type: object
+      properties:
+        maxSuggestions:
+          type: integer
+          format: int32
+      additionalProperties: false
