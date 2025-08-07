@@ -5,6 +5,6 @@ namespace Aido.Application.LlmAnalysis;
 
 public interface LlmAnalysisPort
 {
-    Task<Result<string>> GetListContinuationSuggestions(TodoList todoList, int maxSuggestionCount = 3,
+    Task<Result<List<string>>> GetListContinuationSuggestions(TodoList todoList, int maxSuggestionCount = 3,
             CancellationToken cancellationToken = default(CancellationToken));
 }

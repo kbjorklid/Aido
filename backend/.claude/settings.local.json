@@ -4,7 +4,9 @@
       "Bash(dotnet build)",
       "Bash(curl:*)",
       "Bash(pkill:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test)",
+      "Bash(dotnet add:*)"
     ],
     "deny": []
   }

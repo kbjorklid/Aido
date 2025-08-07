@@ -29,19 +29,18 @@ public class FakeLlmAnalysisAdapter : LlmAnalysisPort
         "Pay monthly bills"
     };
 
-    public Task<Result<string>> GetListContinuationSuggestions(TodoList todoList, int maxSuggestionCount = 3, 
+    public Task<Result<List<string>>> GetListContinuationSuggestions(TodoList todoList, int maxSuggestionCount = 3, 
         CancellationToken cancellationToken = default)
     {
         if (todoList == null)
-            return Task.FromResult(Result<string>.Failure("TodoList cannot be null"));
+            return Task.FromResult(Result<List<string>>.Failure("TodoList cannot be null"));
 
         if (maxSuggestionCount < 1)
-            return Task.FromResult(Result<string>.Failure("maxSuggestionCount must be at least 1"));
+            return Task.FromResult(Result<List<string>>.Failure("maxSuggestionCount must be at least 1"));
 
-        var suggestions = GenerateSuggestions(todoList, maxSuggestionCount);
-        var result = string.Join("\n", suggestions);
+        List<string> suggestions = GenerateSuggestions(todoList, maxSuggestionCount).ToList();
         
-        return Task.FromResult(Result<string>.Success(result));
+        return Task.FromResult(Result<List<string>>.Success(suggestions));
     }
 
     private IEnumerable<string> GenerateSuggestions(TodoList todoList, int maxCount)

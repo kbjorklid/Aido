@@ -1,4 +1,5 @@
 using Aido.Application.UseCases.TodoLists.Commands.CreateTodoList;
+using Aido.Application.UseCases.TodoLists.Commands.GenerateAiSuggestions;
 using Aido.Application.UseCases.TodoLists.Queries.GetAllTodoLists;
 using Aido.Application.UseCases.TodoLists.Queries.GetTodoListById;
 using Aido.Core;
@@ -15,15 +16,18 @@ public class TodoListsController : ControllerBase
     private readonly GetAllTodoListsUseCase _getAllTodoListsUseCase;
     private readonly GetTodoListByIdUseCase _getTodoListByIdUseCase;
     private readonly CreateTodoListUseCase _createTodoListUseCase;
+    private readonly GenerateAiSuggestionsUseCase _generateAiSuggestionsUseCase;
 
     public TodoListsController(
         GetAllTodoListsUseCase getAllTodoListsUseCase,
         GetTodoListByIdUseCase getTodoListByIdUseCase,
-        CreateTodoListUseCase createTodoListUseCase)
+        CreateTodoListUseCase createTodoListUseCase,
+        GenerateAiSuggestionsUseCase generateAiSuggestionsUseCase)
     {
         _getAllTodoListsUseCase = getAllTodoListsUseCase;
         _getTodoListByIdUseCase = getTodoListByIdUseCase;
         _createTodoListUseCase = createTodoListUseCase;
+        _generateAiSuggestionsUseCase = generateAiSuggestionsUseCase;
     }
 
     [HttpGet]
@@ -76,10 +80,40 @@ public class TodoListsController : ControllerBase
 
         return CreatedAtAction(nameof(GetTodoListById), new { id = result.Value.Id }, result.Value);
     }
+
+    [HttpPost("{id}/ai-suggestions")]
+    public async Task<IActionResult> GenerateAiSuggestions(Guid id, [FromBody] GenerateAiSuggestionsRequestDto? requestDto, CancellationToken cancellationToken)
+    {
+        var maxSuggestions = requestDto?.MaxSuggestions ?? 3;
+        
+        if (maxSuggestions < 1 || maxSuggestions > 10)
+        {
+            return BadRequest(new { error = "BadRequest", message = "MaxSuggestions must be between 1 and 10" });
+        }
+
+        var request = new GenerateAiSuggestionsRequest(new TodoListId(id), maxSuggestions);
+        var result = await _generateAiSuggestionsUseCase.ExecuteAsync(request, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error == "Todo list not found")
+            {
+                return NotFound(new { error = "NotFound", message = result.Error });
+            }
+            return StatusCode(500, new { error = "InternalServerError", message = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
 }
 
 public class CreateTodoListRequestDto
 {
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
+}
+
+public class GenerateAiSuggestionsRequestDto
+{
+    public int MaxSuggestions { get; set; } = 3;
 }

@@ -8,6 +8,7 @@ public class TodoItemResponse
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
+    public bool IsSuggestionFromAi { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -19,6 +20,7 @@ public class TodoItemResponse
             Title = todoItem.Title,
             Description = todoItem.Description,
             IsCompleted = todoItem.IsCompleted,
+            IsSuggestionFromAi = todoItem.IsSuggestionFromAi,
             CreatedAt = todoItem.CreatedAt,
             UpdatedAt = todoItem.UpdatedAt
         };

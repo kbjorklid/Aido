@@ -22,6 +22,7 @@ public class TodoItem
         Title = title;
         Description = description ?? string.Empty;
         IsCompleted = false;
+        IsSuggestionFromAi = isSuggestionFromAi;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
