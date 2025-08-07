@@ -1,103 +1,99 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { TodoList } from "@/lib/api";
+import { todoListsApi } from "@/lib/api";
+import TodoListSidebar from "@/components/TodoListSidebar";
+import TodoListHeader from "@/components/TodoListHeader";
+import TodoItemsList from "@/components/TodoItemsList";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [todoLists, setTodoLists] = useState<TodoList[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const selectedList = todoLists.find(list => list.id === selectedListId);
+
+  // Load todo lists on mount
+  useEffect(() => {
+    loadTodoLists();
+  }, []);
+
+  const loadTodoLists = async () => {
+    try {
+      setLoading(true);
+      const lists = await todoListsApi.getAll();
+      setTodoLists(lists);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load todo lists');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleListCreated = (newList: TodoList) => {
+    setTodoLists(prev => [...prev, newList]);
+    setSelectedListId(newList.id);
+  };
+
+  const handleListDeleted = (deletedListId: string) => {
+    setTodoLists(prev => prev.filter(list => list.id !== deletedListId));
+    if (selectedListId === deletedListId) {
+      setSelectedListId(null);
+    }
+  };
+
+  const handleListUpdated = (updatedList: TodoList) => {
+    setTodoLists(prev => prev.map(list => 
+      list.id === updatedList.id ? updatedList : list
+    ));
+  };
+
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-80 border-r border-border bg-card">
+        <TodoListSidebar
+          todoLists={todoLists}
+          selectedListId={selectedListId}
+          onListSelect={setSelectedListId}
+          onListCreated={handleListCreated}
+          onListDeleted={handleListDeleted}
+          loading={loading}
+          error={error}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {selectedList ? (
+          <>
+            <TodoListHeader 
+              todoList={selectedList}
+              onListUpdated={handleListUpdated}
+              onListDeleted={handleListDeleted}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <div className="flex-1">
+              <TodoItemsList 
+                todoList={selectedList}
+                onListUpdated={handleListUpdated}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <h2 className="text-2xl font-semibold mb-2">Select a todo list</h2>
+              <p>Choose a list from the sidebar to view and manage your items</p>
+              {todoLists.length === 0 && !loading && (
+                <p className="mt-4">Create your first todo list to get started</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
